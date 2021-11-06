@@ -1,34 +1,42 @@
-import requests
-import json
+import ETL
 from datetime import date
+import yaml
 
-# Get current date for file structure
-current_date = date.today().strftime('%Y%m%d')
+current_date = date.today()
 
-# Open Banking API required headers
-# x-v: Requesting Open Banking API Version
-# x-v-min: Minimum Acceptable Open Banking API Versiom
-product_headers = {"x-v":"3", "x-v-min":"2"}
+with open("./config/config.yaml", "r") as f:
+    config = yaml.safe_load(f)
 
-# ANZ Products API
-url = "https://api.anz/cds-au/v1/banking/products"
+# ETL from RAW -> MODEL   
+print("""########################
+### Raw -> Model ETL ###
+########################""")
+ 
+for source, url in config["raw_sources"].items():
+    
+    print(f"Running Raw -> Model ETL for {source}...")
+    
+    # Download raw files
+    ETL.load_raw(source, url, current_date)
+    
+    # Extract raw files
+    products = ETL.extract_raw(f"./data/raw/{source}/{current_date.strftime('%Y%m%d')}")
+    
+    # Transform raw data into model format
+    model_entities = ETL.transform_raw(source, products, current_date)
+    
+    # Load model data into files
+    ETL.load_model(source,model_entities)
+    
+# ETL from MODEL -> CONFORMED
+print("""##############################
+### Model -> Conformed ETL ###
+##############################""")
 
-# Initialise Empty Array
-data = []
+for entity in config["model_entities"]:
 
-# Get products
-# N.B. products data is pageinated so need to iterate through until at the end
-while url != "":
-    res = requests.get(url, headers = product_headers)
-    if res.status_code == 200:
-        data.extend(res.json()["data"]["products"])
-        url = res.json()["links"].get("next","")
-
-# Loop through products to get individual product data
-for product in data:
-    print(f"Getting details for {product['name']}...")
-    res = requests.get(f"https://api.anz/cds-au/v1/banking/products/{product['productId']}", headers=product_headers)
-
-    # Write raw file to folder structure
-    with open(f"./ANZ/{current_date}/{product['productId']}.json","w") as f:
-        f.write(json.dumps(res.json()))
+    print(f"Running Model -> Conformed ETL for {entity}...")
+    
+    model = ETL.extract_model(entity, config["raw_sources"].keys())
+    
+    ETL.load_conformed(entity, model)

@@ -1,0 +1,15 @@
+raw_sources:
+    ANZ: https://api.anz/cds-au/v1/banking/products
+    CBA: https://api.commbank.com.au/public/cds-au/v1/banking/products
+    GSB: https://openbanking.apiext.cua.com.au/cds-au/v1/banking/products
+    NAB: https://openbank.api.nab.com.au/cds-au/v1/banking/products
+    Westpac: https://digital-api.westpac.com.au/cds-au/v1/banking/products
+model_entities:
+    - h_product
+    - s_productdetails
+    - s_fees
+    - s_eligibility
+    - s_features
+    - s_lendingrates
+    - s_depositrates
+    - s_constraints
