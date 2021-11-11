@@ -7,8 +7,9 @@ def maybe_print(name, value):
     if pd.isna(value):
         return None
     print(f"\t\t\t  {name}: {value}")
-    
-timewarp = 4
+
+# It's just a jump to the left    
+timewarp = 0
 current_date = date.today() - timedelta(days=timewarp)
  
 h_product = pd.read_csv("./data/conformed/h_product.csv")
@@ -26,13 +27,13 @@ print(f"Rate changes for {current_date.strftime('%Y-%m-%d')}")
 print("New Rates:")
 inserts = delta_frame[delta_frame._merge=="left_only"]
 sources = inserts.source.unique()
-products = inserts.productId.unique()
 if len(inserts) == 0:
     print("\t> No New rates!")
 for source in sources:
     print(f"\t> Bank: {source}")
+    products = inserts[inserts.source == source].productId.unique()
     for product in products:
-        print(f"\t\t> Product: {s_productdetails[(s_productdetails.eftv_date == current_date.strftime('%Y-%m-%d')) & (s_productdetails.productId == product)].name.values}")
+        print(f"\t\t> Product: {s_productdetails[(s_productdetails.eftv_date == current_date.strftime('%Y-%m-%d')) & (s_productdetails.productId == product) & (s_productdetails.source == source)].name.values}")
         for idx, row in inserts[(inserts.source==source) & (inserts.productId==product)].iterrows():
             print(f"\n\t\t\t> Rate Type: {row['lendingRateType']};")
             maybe_print("Purpose", row['loanPurpose'])
@@ -53,11 +54,11 @@ for source in sources:
 print("Updated Rates:")
 updates = delta_frame[(delta_frame._merge=="both") & (delta_frame.rate_x.mask(pd.isnull,0) != delta_frame.rate_y.mask(pd.isnull,0))]
 sources = updates.source.unique()
-products = updates.productId.unique()
 if len(updates) == 0:
     print("\t> No Updated rates!")
 for source in sources:
     print(f"\t> Bank: {source}")
+    products = updates[updates.source == source].productId.unique()
     for product in products:
         print(f"\t\t> Product: {s_productdetails[(s_productdetails.eftv_date == current_date.strftime('%Y-%m-%d')) & (s_productdetails.productId == product)].name.values}")
         for idx, row in updates[(updates.source==source) & (updates.productId==product)].iterrows():
@@ -81,11 +82,11 @@ for source in sources:
 print("Deleted Rates")
 deletes = delta_frame[delta_frame._merge=="right_only"]
 sources = deletes.source.unique()
-products = deletes.productId.unique()
 if len(deletes) == 0:
     print("\t> No Deleted rates!")
 for source in sources:
     print(f"\t> Bank: {source}")
+    products = deletes[deletes.source == source].productId.unique()
     for product in products:
         print(f"\t\t> Product: {s_productdetails[(s_productdetails.eftv_date == (current_date  - timedelta(days=1)).strftime('%Y-%m-%d')) & (s_productdetails.productId == product)].name.values}")
         for idx, row in deletes[(deletes.source==source) & (deletes.productId==product)].iterrows():
