@@ -4,6 +4,8 @@ raw_sources:
     GSB: https://openbanking.apiext.cua.com.au/cds-au/v1/banking/products
     NAB: https://openbank.api.nab.com.au/cds-au/v1/banking/products
     Westpac: https://digital-api.westpac.com.au/cds-au/v1/banking/products
+    BOQ: https://secure.api.boq.com.au/cds-au/v1/banking/products
+    Suncorp: https://prd.suncorpbank.com.au/cds-au/v1/banking/products
 model_entities:
     - h_product
     - s_productdetails

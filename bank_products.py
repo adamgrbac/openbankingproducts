@@ -17,7 +17,7 @@ for source, url in config["raw_sources"].items():
     print(f"Running Raw -> Model ETL for {source}...")
     
     # Download raw files
-    #ETL.load_raw(source, url, current_date)
+    ETL.load_raw(source, url, current_date)
     
     # Extract raw files
     products = ETL.extract_raw(f"./data/raw/{source}/{current_date.strftime('%Y%m%d')}")

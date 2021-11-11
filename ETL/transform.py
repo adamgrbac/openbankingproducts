@@ -26,7 +26,8 @@ def transform_raw(source, products, current_date):
                                  "isTailored": product["data"]["isTailored"],
                                  "eftv_date": current_date})
         # Construct Product Fees Satellite Table
-        for fee in product["data"].get("fees",[]):
+        fees = product["data"].get("fees",[])
+        for fee in fees if fees else []:
             s_fees.append({"source": source,
                            "productId": product["data"]["productId"],
                            "name": fee["name"],
@@ -38,7 +39,8 @@ def transform_raw(source, products, current_date):
                            "additionalInfo": fee.get("additionalInfo",""),
                            "eftv_date": current_date})
         # Construct Product Eligibility Satellite Table
-        for eligibility in product["data"].get("eligibility",[]):
+        eligibilities = product["data"].get("eligibility",[])
+        for eligibility in eligibilities if eligibilities else []:
             s_eligibility.append({"source": source,
                                   "productId": product["data"]["productId"],
                                   "eligibilityType": eligibility["eligibilityType"],
@@ -46,7 +48,8 @@ def transform_raw(source, products, current_date):
                                   "additionalInfo": eligibility.get("additionalInfo",""),
                                   "eftv_date": current_date})
         # Construct Product Features Satellite Table
-        for feature in product["data"].get("features",[]):
+        features = product["data"].get("features",[])
+        for feature in features if features else []:
             s_features.append({"source": source,
                                "productId": product["data"]["productId"],
                                "featureType": feature["featureType"],
@@ -54,8 +57,10 @@ def transform_raw(source, products, current_date):
                                "additionalInfo": feature.get("additionalInfo",""),
                                "eftv_date": current_date})
         # Construct Product Lending Rates Satellite Table
-        for lendingrate in product["data"].get("lendingRates",[]):
+        lendingrates = product["data"].get("lendingRates",[])
+        for lendingrate in lendingrates if lendingrates else []:
             tiers = lendingrate.get("tiers",[])
+            tiers = tiers if tiers else []
             min_lvr = [tier.get("minimumValue") for tier in tiers if tier.get("unitOfMeasure","").upper() == "PERCENT"]
             max_lvr = [tier.get("maximumValue") for tier in tiers if tier.get("unitOfMeasure","").upper() == "PERCENT"]
             min_term = [tier.get("minimumValue") for tier in tiers if tier.get("unitOfMeasure","").upper() == "MONTH"]
@@ -82,7 +87,8 @@ def transform_raw(source, products, current_date):
                                    "max_val": max_val[0] if len(max_val) > 0 else "",
                                    "eftv_date": current_date})
         # Construct Product Deposit Rates Satellite Table
-        for depositrate in product["data"].get("depositRates",[]):
+        depositRates = product["data"].get("depositRates",[])
+        for depositrate in depositRates if depositRates else []:
             s_depositrates.append({"source": source,
                                    "productId": product["data"]["productId"],
                                    "depositRateType": depositrate.get("depositRateType",""),
@@ -91,7 +97,8 @@ def transform_raw(source, products, current_date):
                                    "additionalInfo": depositrate.get("additionalInfo",""),
                                    "additionalValue": depositrate.get("additionalValue",""),
                                    "eftv_date": current_date})
-        for constraint in product["data"].get("constraints",[]):
+        constraints = product["data"].get("constraints",[])
+        for constraint in constraints if constraints else []:
             s_constraints.append({"source": source,
                                   "productId": product["data"]["productId"],
                                   "constraintType": constraint.get("constraintType",""),

@@ -43,6 +43,8 @@ def load_raw(source, src_url, src_date):
                 
 
 def load_model(source, model_entities):
+    if not os.path.exists(f"./data/model/{source}/"):
+        os.makedirs(f"./data/model/{source}/")
     for entity_name, entity_df in tqdm(model_entities.items(),ascii=True,desc="Load Model Data"):
         output_file = f"./data/model/{source}/{entity_name}.csv"
         entity_df.to_csv(output_file, index=False, mode="a" if entity_name[:2] == "s_" else "w", header=not os.path.exists(output_file) or entity_name[:2] == "h_")
