@@ -27,80 +27,123 @@ print(f"Rate changes for {current_date.strftime('%Y-%m-%d')}")
 print("New Rates:")
 inserts = delta_frame[delta_frame._merge=="left_only"]
 sources = inserts.source.unique()
-if len(inserts) == 0:
-    print("\t> No New rates!")
-for source in sources:
-    print(f"\t> Bank: {source}")
-    products = inserts[inserts.source == source].productId.unique()
-    for product in products:
-        print(f"\t\t> Product: {s_productdetails[(s_productdetails.eftv_date == current_date.strftime('%Y-%m-%d')) & (s_productdetails.productId == product) & (s_productdetails.source == source)].name.values}")
-        for idx, row in inserts[(inserts.source==source) & (inserts.productId==product)].iterrows():
-            print(f"\n\t\t\t> Rate Type: {row['lendingRateType']};")
-            maybe_print("Purpose", row['loanPurpose'])
-            maybe_print("Repayment Type", row['repaymentType'])
-            maybe_print("Interest Due", row['interestPaymentDue'])
-            maybe_print("Interest Frequency", row['applicationFrequency'])
-            maybe_print("Additional Info", row['additionalInfo'])
-            maybe_print("Additional Value", row['additionalValue'])
-            maybe_print("Min LVR", row['min_lvr'])
-            maybe_print("Max LVR", row['max_lvr'])
-            maybe_print("Min Term", row['min_term'])
-            maybe_print("Max Term", row['max_term'])
-            maybe_print("Min Val", row['min_val'])
-            maybe_print("Max Val", row['max_val'])
-            print(f"\t\t\t  New Rate: {row['rate_x']}")
+with pd.ExcelWriter(f"outputs/{current_date.strftime('%Y%m%d')}_rate_changes.xlsx", mode="w", engine="openpyxl") as writer:
+    join_df = inserts.merge(s_productdetails[s_productdetails.eftv_date == current_date.strftime('%Y-%m-%d')], on=["source","productId"], how="left")
+    input_cols = ["source",
+                  "name",
+                  "lendingRateType",
+                  "loanPurpose",
+                  "repaymentType",
+                  "interestPaymentDue",
+                  "applicationFrequency",
+                  "additionalInfo",
+                  "additionalValue",
+                  "min_lvr",
+                  "max_lvr",
+                  "min_term",
+                  "max_term",
+                  "min_val",
+                  "max_val",
+                  "rate_x"]
+    filtered_join_df = join_df[input_cols].sort_values(by=["source","name"])
+    filtered_join_df.columns = ["Institution",
+                                "Product Name",
+                                "Rate Type",
+                                "Purpose",
+                                "Repayment Type",
+                                "Interest Due",
+                                "Interest Frequency",
+                                "Additional Info",
+                                "Additional Value",
+                                "Min LVR",
+                                "Max LVR",
+                                "Min Term",
+                                "Max Term",
+                                "Min Value",
+                                "Max Value",
+                                "New Rate"]
+    filtered_join_df.to_excel(writer, sheet_name="New Rates", index=False)
 
 # Updates
 print("Updated Rates:")
 updates = delta_frame[(delta_frame._merge=="both") & (delta_frame.rate_x.mask(pd.isnull,0) != delta_frame.rate_y.mask(pd.isnull,0))]
 sources = updates.source.unique()
-if len(updates) == 0:
-    print("\t> No Updated rates!")
-for source in sources:
-    print(f"\t> Bank: {source}")
-    products = updates[updates.source == source].productId.unique()
-    for product in products:
-        print(f"\t\t> Product: {s_productdetails[(s_productdetails.eftv_date == current_date.strftime('%Y-%m-%d')) & (s_productdetails.productId == product)].name.values}")
-        for idx, row in updates[(updates.source==source) & (updates.productId==product)].iterrows():
-            print(f"\n\t\t\t> Rate Type: {row['lendingRateType']};")
-            maybe_print("Purpose", row['loanPurpose'])
-            maybe_print("Repayment Type", row['repaymentType'])
-            maybe_print("Interest Due", row['interestPaymentDue'])
-            maybe_print("Interest Frequency", row['applicationFrequency'])
-            maybe_print("Additional Info", row['additionalInfo'])
-            maybe_print("Additional Value", row['additionalValue'])
-            maybe_print("Min LVR", row['min_lvr'])
-            maybe_print("Max LVR", row['max_lvr'])
-            maybe_print("Min Term", row['min_term'])
-            maybe_print("Max Term", row['max_term'])
-            maybe_print("Min Val", row['min_val'])
-            maybe_print("Max Val", row['max_val'])
-            print(f"\t\t\t  Old Rate: {row['rate_y']}")
-            print(f"\t\t\t  New Rate: {row['rate_x']}")
+with pd.ExcelWriter(f"outputs/{current_date.strftime('%Y%m%d')}_rate_changes.xlsx", mode="a", engine="openpyxl") as writer:
+    join_df = updates.merge(s_productdetails[s_productdetails.eftv_date == current_date.strftime('%Y-%m-%d')], on=["source","productId"], how="left")
+    input_cols = ["source",
+                  "name",
+                  "lendingRateType",
+                  "loanPurpose",
+                  "repaymentType",
+                  "interestPaymentDue",
+                  "applicationFrequency",
+                  "additionalInfo",
+                  "additionalValue",
+                  "min_lvr",
+                  "max_lvr",
+                  "min_term",
+                  "max_term",
+                  "min_val",
+                  "max_val",
+                  "rate_y",
+                  "rate_x"]
+    filtered_join_df = join_df[input_cols].sort_values(by=["source","name"])
+    filtered_join_df.columns = ["Institution",
+                                "Product Name",
+                                "Rate Type",
+                                "Purpose",
+                                "Repayment Type",
+                                "Interest Due",
+                                "Interest Frequency",
+                                "Additional Info",
+                                "Additional Value",
+                                "Min LVR",
+                                "Max LVR",
+                                "Min Term",
+                                "Max Term",
+                                "Min Value",
+                                "Max Value",
+                                "Old Rate",
+                                "New Rate"]
+    filtered_join_df.to_excel(writer, sheet_name="Updated Rates", index=False)
 
 # Deletes
 print("Deleted Rates")
 deletes = delta_frame[delta_frame._merge=="right_only"]
 sources = deletes.source.unique()
-if len(deletes) == 0:
-    print("\t> No Deleted rates!")
-for source in sources:
-    print(f"\t> Bank: {source}")
-    products = deletes[deletes.source == source].productId.unique()
-    for product in products:
-        print(f"\t\t> Product: {s_productdetails[(s_productdetails.eftv_date == (current_date  - timedelta(days=1)).strftime('%Y-%m-%d')) & (s_productdetails.productId == product)].name.values}")
-        for idx, row in deletes[(deletes.source==source) & (deletes.productId==product)].iterrows():
-            print(f"\n\t\t\t> Rate Type: {row['lendingRateType']};")
-            maybe_print("Purpose", row['loanPurpose'])
-            maybe_print("Repayment Type", row['repaymentType'])
-            maybe_print("Interest Due", row['interestPaymentDue'])
-            maybe_print("Interest Frequency", row['applicationFrequency'])
-            maybe_print("Additional Info", row['additionalInfo'])
-            maybe_print("Additional Value", row['additionalValue'])
-            maybe_print("Min LVR", row['min_lvr'])
-            maybe_print("Max LVR", row['max_lvr'])
-            maybe_print("Min Term", row['min_term'])
-            maybe_print("Max Term", row['max_term'])
-            maybe_print("Min Val", row['min_val'])
-            maybe_print("Max Val", row['max_val'])
-            print(f"\t\t\t  Old Rate: {row['rate_y']}")
+with pd.ExcelWriter(f"outputs/{current_date.strftime('%Y%m%d')}_rate_changes.xlsx", mode="a", engine="openpyxl") as writer:
+    join_df = deletes.merge(s_productdetails[s_productdetails.eftv_date == (current_date  - timedelta(days=1)).strftime('%Y-%m-%d')], on=["source","productId"], how="left")
+    input_cols = ["source",
+                  "name",
+                  "lendingRateType",
+                  "loanPurpose",
+                  "repaymentType",
+                  "interestPaymentDue",
+                  "applicationFrequency",
+                  "additionalInfo",
+                  "additionalValue",
+                  "min_lvr",
+                  "max_lvr",
+                  "min_term",
+                  "max_term",
+                  "min_val",
+                  "max_val",
+                  "rate_y"]
+    filtered_join_df = join_df[input_cols].sort_values(by=["source","name"])
+    filtered_join_df.columns = ["Institution",
+                                "Product Name",
+                                "Rate Type",
+                                "Purpose",
+                                "Repayment Type",
+                                "Interest Due",
+                                "Interest Frequency",
+                                "Additional Info",
+                                "Additional Value",
+                                "Min LVR",
+                                "Max LVR",
+                                "Min Term",
+                                "Max Term",
+                                "Min Value",
+                                "Max Value",
+                                "Old Rate"]
+    filtered_join_df.to_excel(writer, sheet_name="Deleted Rates", index=False)
