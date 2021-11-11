@@ -1,8 +1,8 @@
 import ETL
-from datetime import date
+from datetime import date, timedelta
 import yaml
 
-current_date = date.today()
+current_date = date.today()# - timedelta(days=1)
 
 with open("./config/config.yaml", "r") as f:
     config = yaml.safe_load(f)
@@ -17,7 +17,7 @@ for source, url in config["raw_sources"].items():
     print(f"Running Raw -> Model ETL for {source}...")
     
     # Download raw files
-    ETL.load_raw(source, url, current_date)
+    #ETL.load_raw(source, url, current_date)
     
     # Extract raw files
     products = ETL.extract_raw(f"./data/raw/{source}/{current_date.strftime('%Y%m%d')}")
@@ -27,7 +27,7 @@ for source, url in config["raw_sources"].items():
     
     # Load model data into files
     ETL.load_model(source,model_entities)
-    
+
 # ETL from MODEL -> CONFORMED
 print("""##############################
 ### Model -> Conformed ETL ###

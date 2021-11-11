@@ -55,6 +55,13 @@ def transform_raw(source, products, current_date):
                                "eftv_date": current_date})
         # Construct Product Lending Rates Satellite Table
         for lendingrate in product["data"].get("lendingRates",[]):
+            tiers = lendingrate.get("tiers",[])
+            min_lvr = [tier.get("minimumValue") for tier in tiers if tier.get("unitOfMeasure","").upper() == "PERCENT"]
+            max_lvr = [tier.get("maximumValue") for tier in tiers if tier.get("unitOfMeasure","").upper() == "PERCENT"]
+            min_term = [tier.get("minimumValue") for tier in tiers if tier.get("unitOfMeasure","").upper() == "MONTH"]
+            max_term = [tier.get("maximumValue") for tier in tiers if tier.get("unitOfMeasure","").upper() == "MONTH"]
+            min_val = [tier.get("minimumValue") for tier in tiers if tier.get("unitOfMeasure","").upper() == "DOLLAR"]
+            max_val = [tier.get("maximumValue") for tier in tiers if tier.get("unitOfMeasure","").upper() == "DOLLAR"]
             s_lendingrates.append({"source": source,
                                    "productId": product["data"]["productId"],
                                    "lendingRateType": lendingrate["lendingRateType"],
@@ -67,6 +74,12 @@ def transform_raw(source, products, current_date):
                                    "calculationFrequency": lendingrate.get("calculationFrequency",""),
                                    "additionalInfo": lendingrate.get("additionalInfo",""),
                                    "additionalValue": lendingrate.get("additionalValue",""),
+                                   "min_lvr": min_lvr[0] if len(min_lvr) > 0 else "",
+                                   "max_lvr": max_lvr[0] if len(max_lvr) > 0 else "",
+                                   "min_term": min_term[0] if len(min_term) > 0 else "",
+                                   "max_term": max_term[0] if len(max_term) > 0 else "",
+                                   "min_val": min_val[0] if len(min_val) > 0 else "",
+                                   "max_val": max_val[0] if len(max_val) > 0 else "",
                                    "eftv_date": current_date})
         # Construct Product Deposit Rates Satellite Table
         for depositrate in product["data"].get("depositRates",[]):
