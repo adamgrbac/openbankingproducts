@@ -41,8 +41,9 @@ delta_frame = s_lendingrates_today.merge(s_lendingrates_yday,
 print(f"Rate changes for {current_date.strftime('%Y-%m-%d')}")
 
 # Inserts
-print("New Rates:")
+print("Checking for New Rates...")
 inserts = delta_frame[delta_frame._merge == "left_only"]
+print(f"\t> {len(inserts)} new rates found!")
 sources = inserts.source.unique()
 with pd.ExcelWriter(f"outputs/{current_date.strftime('%Y%m%d')}_rate_changes.xlsx", mode="w", engine="openpyxl") as writer:
     join_df = inserts.merge(s_productdetails[s_productdetails.eftv_date == current_date.strftime('%Y-%m-%d')], on=["source", "productId"], how="left")
@@ -82,9 +83,10 @@ with pd.ExcelWriter(f"outputs/{current_date.strftime('%Y%m%d')}_rate_changes.xls
     filtered_join_df.to_excel(writer, sheet_name="New Rates", index=False)
 
 # Updates
-print("Updated Rates:")
+print("Checking for Updated Rates...")
 updates = delta_frame[(delta_frame._merge == "both") & (delta_frame.rate_x.mask(pd.isnull, 0) != delta_frame.rate_y.mask(pd.isnull, 0))]
 sources = updates.source.unique()
+print(f"\t> {len(updates)} updated rates found!")
 with pd.ExcelWriter(f"outputs/{current_date.strftime('%Y%m%d')}_rate_changes.xlsx", mode="a", engine="openpyxl") as writer:
     join_df = updates.merge(s_productdetails[s_productdetails.eftv_date == current_date.strftime('%Y-%m-%d')], on=["source", "productId"], how="left")
     input_cols = ["source",
@@ -125,9 +127,10 @@ with pd.ExcelWriter(f"outputs/{current_date.strftime('%Y%m%d')}_rate_changes.xls
     filtered_join_df.to_excel(writer, sheet_name="Updated Rates", index=False)
 
 # Deletes
-print("Deleted Rates")
+print("Checking for Deleted Rates...")
 deletes = delta_frame[delta_frame._merge == "right_only"]
 sources = deletes.source.unique()
+print(f"\t> {len(deletes)} deleted rates found!")
 with pd.ExcelWriter(f"outputs/{current_date.strftime('%Y%m%d')}_rate_changes.xlsx", mode="a", engine="openpyxl") as writer:
     join_df = deletes.merge(s_productdetails[s_productdetails.eftv_date == (current_date - timedelta(days=1)).strftime('%Y-%m-%d')], on=["source", "productId"], how="left")
     input_cols = ["source",

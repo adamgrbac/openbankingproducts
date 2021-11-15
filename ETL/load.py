@@ -1,6 +1,7 @@
 import requests
 import json
 import os
+import pandas as pd
 from tqdm import tqdm
 
 
@@ -41,11 +42,14 @@ def load_raw(source, src_url, src_date):
             os.remove(f"./data/raw/{source}/{current_date}/{product['productId']}.json")
 
 
-def load_model(source, model_entities):
+def load_model(source, model_entities, eftv_date, overwrite=True):
     if not os.path.exists(f"./data/model/{source}/"):
         os.makedirs(f"./data/model/{source}/")
     for entity_name, entity_df in tqdm(model_entities.items(), ascii=True, desc="Load Model Data"):
         output_file = f"./data/model/{source}/{entity_name}.csv"
+        if entity_name[:2] != "h_" and os.path.exists(output_file) and overwrite:
+            tmp_df = pd.read_csv(output_file)
+            tmp_df[tmp_df["eftv_date"] != eftv_date].to_csv(output_file, index=False)
         entity_df.to_csv(output_file, index=False, mode="a" if entity_name[:2] == "s_" else "w", header=not os.path.exists(output_file) or entity_name[:2] == "h_")
 
 

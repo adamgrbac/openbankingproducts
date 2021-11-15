@@ -26,7 +26,7 @@ for source, url in config["raw_sources"].items():
     model_entities = ETL.transform_raw(source, products, current_date)
 
     # Load model data into files
-    ETL.load_model(source, model_entities)
+    ETL.load_model(source, model_entities, current_date.strftime('%Y-%m-%d'))
 
 # ETL from MODEL -> CONFORMED
 print("""##############################

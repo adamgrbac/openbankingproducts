@@ -29,9 +29,11 @@ def transform_raw(source, products, current_date):
         # Construct Product Fees Satellite Table
         fees = product["data"].get("fees", [])
         for fee in fees if fees else []:
+            if fee is None:
+                continue
             s_fees.append({"source": source,
                            "productId": product["data"]["productId"],
-                           "name": fee["name"],
+                           "name": fee.get("name",""),
                            "feeType": fee["feeType"],
                            "currency": fee.get("currency", ""),
                            "amount": fee.get("amount", ""),

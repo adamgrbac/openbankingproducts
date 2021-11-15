@@ -6,6 +6,11 @@ raw_sources:
     Westpac: https://digital-api.westpac.com.au/cds-au/v1/banking/products
     BOQ: https://secure.api.boq.com.au/cds-au/v1/banking/products
     Suncorp: https://prd.suncorpbank.com.au/cds-au/v1/banking/products
+    MACQ: https://api.macquariebank.io/cds-au/v1/banking/products
+    AMP: https://api.cdr-api.amp.com.au/cds-au/v1/banking/products
+    ME: https://api.mebank.com.au/cds-au/v1/banking/products
+    Volt: https://api.voltbank.com.au/cds-au/v1/banking/products
+    UBank: https://openbank.api.ubank.com.au/cds-au/v1/banking/products
 model_entities:
     - h_product
     - s_productdetails
