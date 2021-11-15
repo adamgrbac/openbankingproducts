@@ -1,34 +1,51 @@
-import ETL
 import pandas as pd
 from datetime import date, timedelta
-import yaml
+
 
 def maybe_print(name, value):
     if pd.isna(value):
         return None
     print(f"\t\t\t  {name}: {value}")
 
-# It's just a jump to the left    
+
+# It's just a jump to the left
 timewarp = 0
 current_date = date.today() - timedelta(days=timewarp)
- 
+
 h_product = pd.read_csv("./data/conformed/h_product.csv")
 s_productdetails = pd.read_csv("./data/conformed/s_productdetails.csv")
 s_lendingrates = pd.read_csv("./data/conformed/s_lendingrates.csv")
 
-s_lendingrates_today = s_lendingrates[s_lendingrates.eftv_date == (date.today()- timedelta(days=timewarp)).strftime('%Y-%m-%d')]
-s_lendingrates_yday = s_lendingrates[s_lendingrates.eftv_date == (date.today() - timedelta(days=timewarp+1)).strftime('%Y-%m-%d')]
+s_lendingrates_today = s_lendingrates[s_lendingrates.eftv_date == current_date.strftime('%Y-%m-%d')]
+s_lendingrates_yday = s_lendingrates[s_lendingrates.eftv_date == (current_date - timedelta(days=1)).strftime('%Y-%m-%d')]
 
-delta_frame = s_lendingrates_today.merge(s_lendingrates_yday, on=["source","productId","lendingRateType","loanPurpose","repaymentType","interestPaymentDue","applicationFrequency","additionalInfo","additionalValue","min_lvr","max_lvr","min_term","max_term", "min_val", "max_val"], how="outer", indicator=True)
+delta_frame = s_lendingrates_today.merge(s_lendingrates_yday,
+                                         on=["source",
+                                             "productId",
+                                             "lendingRateType",
+                                             "loanPurpose",
+                                             "repaymentType",
+                                             "interestPaymentDue",
+                                             "applicationFrequency",
+                                             "additionalInfo",
+                                             "additionalValue",
+                                             "min_lvr",
+                                             "max_lvr",
+                                             "min_term",
+                                             "max_term",
+                                             "min_val",
+                                             "max_val"],
+                                         how="outer",
+                                         indicator=True)
 
 print(f"Rate changes for {current_date.strftime('%Y-%m-%d')}")
 
 # Inserts
 print("New Rates:")
-inserts = delta_frame[delta_frame._merge=="left_only"]
+inserts = delta_frame[delta_frame._merge == "left_only"]
 sources = inserts.source.unique()
 with pd.ExcelWriter(f"outputs/{current_date.strftime('%Y%m%d')}_rate_changes.xlsx", mode="w", engine="openpyxl") as writer:
-    join_df = inserts.merge(s_productdetails[s_productdetails.eftv_date == current_date.strftime('%Y-%m-%d')], on=["source","productId"], how="left")
+    join_df = inserts.merge(s_productdetails[s_productdetails.eftv_date == current_date.strftime('%Y-%m-%d')], on=["source", "productId"], how="left")
     input_cols = ["source",
                   "name",
                   "lendingRateType",
@@ -45,7 +62,7 @@ with pd.ExcelWriter(f"outputs/{current_date.strftime('%Y%m%d')}_rate_changes.xls
                   "min_val",
                   "max_val",
                   "rate_x"]
-    filtered_join_df = join_df[input_cols].sort_values(by=["source","name"])
+    filtered_join_df = join_df[input_cols].sort_values(by=["source", "name"])
     filtered_join_df.columns = ["Institution",
                                 "Product Name",
                                 "Rate Type",
@@ -66,10 +83,10 @@ with pd.ExcelWriter(f"outputs/{current_date.strftime('%Y%m%d')}_rate_changes.xls
 
 # Updates
 print("Updated Rates:")
-updates = delta_frame[(delta_frame._merge=="both") & (delta_frame.rate_x.mask(pd.isnull,0) != delta_frame.rate_y.mask(pd.isnull,0))]
+updates = delta_frame[(delta_frame._merge == "both") & (delta_frame.rate_x.mask(pd.isnull, 0) != delta_frame.rate_y.mask(pd.isnull, 0))]
 sources = updates.source.unique()
 with pd.ExcelWriter(f"outputs/{current_date.strftime('%Y%m%d')}_rate_changes.xlsx", mode="a", engine="openpyxl") as writer:
-    join_df = updates.merge(s_productdetails[s_productdetails.eftv_date == current_date.strftime('%Y-%m-%d')], on=["source","productId"], how="left")
+    join_df = updates.merge(s_productdetails[s_productdetails.eftv_date == current_date.strftime('%Y-%m-%d')], on=["source", "productId"], how="left")
     input_cols = ["source",
                   "name",
                   "lendingRateType",
@@ -87,7 +104,7 @@ with pd.ExcelWriter(f"outputs/{current_date.strftime('%Y%m%d')}_rate_changes.xls
                   "max_val",
                   "rate_y",
                   "rate_x"]
-    filtered_join_df = join_df[input_cols].sort_values(by=["source","name"])
+    filtered_join_df = join_df[input_cols].sort_values(by=["source", "name"])
     filtered_join_df.columns = ["Institution",
                                 "Product Name",
                                 "Rate Type",
@@ -109,10 +126,10 @@ with pd.ExcelWriter(f"outputs/{current_date.strftime('%Y%m%d')}_rate_changes.xls
 
 # Deletes
 print("Deleted Rates")
-deletes = delta_frame[delta_frame._merge=="right_only"]
+deletes = delta_frame[delta_frame._merge == "right_only"]
 sources = deletes.source.unique()
 with pd.ExcelWriter(f"outputs/{current_date.strftime('%Y%m%d')}_rate_changes.xlsx", mode="a", engine="openpyxl") as writer:
-    join_df = deletes.merge(s_productdetails[s_productdetails.eftv_date == (current_date  - timedelta(days=1)).strftime('%Y-%m-%d')], on=["source","productId"], how="left")
+    join_df = deletes.merge(s_productdetails[s_productdetails.eftv_date == (current_date - timedelta(days=1)).strftime('%Y-%m-%d')], on=["source", "productId"], how="left")
     input_cols = ["source",
                   "name",
                   "lendingRateType",
@@ -129,7 +146,7 @@ with pd.ExcelWriter(f"outputs/{current_date.strftime('%Y%m%d')}_rate_changes.xls
                   "min_val",
                   "max_val",
                   "rate_y"]
-    filtered_join_df = join_df[input_cols].sort_values(by=["source","name"])
+    filtered_join_df = join_df[input_cols].sort_values(by=["source", "name"])
     filtered_join_df.columns = ["Institution",
                                 "Product Name",
                                 "Rate Type",

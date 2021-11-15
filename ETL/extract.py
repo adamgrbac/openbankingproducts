@@ -1,8 +1,8 @@
 import json
 import os
 import pandas as pd
-from datetime import date
 from tqdm import tqdm
+
 
 def extract_raw(source_dir):
     data = []
@@ -10,11 +10,12 @@ def extract_raw(source_dir):
         with open(f"{source_dir}/{filename}") as f:
             try:
                 data.append(json.load(f))
-            except Exception as e:
+            except Exception:
                 print("\nERROR! Can't load file!")
                 print(f"Filename: {filename}")
     return data
-    
+
+
 def extract_model(model_entity, source_dirs):
     dfs = []
     for source in tqdm(source_dirs, ascii=True, desc="Extract Model Data"):
