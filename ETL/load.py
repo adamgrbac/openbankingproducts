@@ -1,6 +1,6 @@
-import requests
 import json
 import os
+import requests
 import pandas as pd
 from tqdm import tqdm
 
@@ -54,5 +54,5 @@ def load_model(source, model_entities, eftv_date, overwrite=True):
 
 
 def load_conformed(entity, conformed_entity_df):
-    for entity in tqdm([entity], ascii=True, desc="Load Conformed Data"):
-        conformed_entity_df.to_csv(f"./data/conformed/{entity}.csv", index=False)
+    for ent in tqdm([entity], ascii=True, desc="Load Conformed Data"):
+        conformed_entity_df.to_csv(f"./data/conformed/{ent}.csv", index=False)

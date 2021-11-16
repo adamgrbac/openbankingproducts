@@ -11,6 +11,7 @@ raw_sources:
     ME: https://api.mebank.com.au/cds-au/v1/banking/products
     Volt: https://api.voltbank.com.au/cds-au/v1/banking/products
     UBank: https://openbank.api.ubank.com.au/cds-au/v1/banking/products
+    86400: https://public.cdr-api.86400.com.au/cds-au/v1/banking/products
 model_entities:
     - h_product
     - s_productdetails

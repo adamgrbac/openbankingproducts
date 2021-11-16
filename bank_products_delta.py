@@ -1,16 +1,17 @@
-import pandas as pd
 from datetime import date, timedelta
+import pandas as pd
 
 
 def maybe_print(name, value):
     if pd.isna(value):
-        return None
-    print(f"\t\t\t  {name}: {value}")
+        pass
+    else:
+        print(f"\t\t\t  {name}: {value}")
 
 
 # It's just a jump to the left
-timewarp = 0
-current_date = date.today() - timedelta(days=timewarp)
+TIMEWARP = 0
+current_date = date.today() - timedelta(days=TIMEWARP)
 
 h_product = pd.read_csv("./data/conformed/h_product.csv")
 s_productdetails = pd.read_csv("./data/conformed/s_productdetails.csv")
@@ -38,6 +39,8 @@ delta_frame = s_lendingrates_today.merge(s_lendingrates_yday,
                                          how="outer",
                                          indicator=True)
 
+delta_frame["rate_x"] = delta_frame["rate_x"].round(6)
+delta_frame["rate_y"] = delta_frame["rate_y"].round(6)
 print(f"Rate changes for {current_date.strftime('%Y-%m-%d')}")
 
 # Inserts
