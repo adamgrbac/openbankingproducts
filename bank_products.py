@@ -2,7 +2,8 @@ from datetime import date, timedelta
 import yaml
 import ETL
 
-current_date = date.today()  # - timedelta(days=1)
+TIMEWARP = 0
+current_date = date.today()  - timedelta(days=TIMEWARP)
 
 with open("./config/config.yaml", "r") as f:
     config = yaml.safe_load(f)

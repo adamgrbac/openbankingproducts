@@ -1,7 +1,7 @@
 raw_sources:
     ANZ: https://api.anz/cds-au/v1/banking/products
     CBA: https://api.commbank.com.au/public/cds-au/v1/banking/products
-    GSB: https://openbanking.apiext.cua.com.au/cds-au/v1/banking/products
+    GSB: https://api.open-banking.greatsouthernbank.com.au/cds-au/v1/banking/products
     NAB: https://openbank.api.nab.com.au/cds-au/v1/banking/products
     Westpac: https://digital-api.westpac.com.au/cds-au/v1/banking/products
     BOQ: https://secure.api.boq.com.au/cds-au/v1/banking/products

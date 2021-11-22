@@ -29,7 +29,10 @@ def load_raw(source, src_url, src_date):
     # Loop through products to get individual product data
     for product in tqdm(data, ascii=True, desc="Download Raw Data"):
         res = requests.get(f"{src_url}/{product['productId']}", headers=product_headers)
-
+        if res.json().get("errors",None) is not None:
+            print("\nERROR!")
+            print(f"Source: {source}\nProduct ID: {product['productId']}\nErrors: {res.json()['errors']}")
+            return None
         # Write raw file to folder structure
         if not os.path.exists(f"./data/raw/{source}/{current_date}/"):
             os.makedirs(f"./data/raw/{source}/{current_date}/")
