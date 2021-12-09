@@ -5,7 +5,7 @@ raw_sources:
     NAB: https://openbank.api.nab.com.au/cds-au/v1/banking/products
     Westpac: https://digital-api.westpac.com.au/cds-au/v1/banking/products
     BOQ: https://secure.api.boq.com.au/cds-au/v1/banking/products
-    Suncorp: https://prd.suncorpbank.com.au/cds-au/v1/banking/products
+    Suncorp: https://id-ob.suncorpbank.com.au/cds-au/v3/banking/products
     MACQ: https://api.macquariebank.io/cds-au/v1/banking/products
     AMP: https://api.cdr-api.amp.com.au/cds-au/v1/banking/products
     ME: https://api.mebank.com.au/cds-au/v1/banking/products

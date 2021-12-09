@@ -13,6 +13,10 @@ def load_raw(source, src_url, src_date):
     product_headers = {"x-v": "3", "x-v-min": "2"}
     data = []
     url = src_url
+    
+    # Create folder if doesn't exist
+    if not os.path.exists(f"./data/raw/{source}/{current_date}/"):
+        os.makedirs(f"./data/raw/{source}/{current_date}/")
 
     while url and url != "":
         res = requests.get(url, headers=product_headers)
@@ -33,9 +37,6 @@ def load_raw(source, src_url, src_date):
             print("\nERROR!")
             print(f"Source: {source}\nProduct ID: {product['productId']}\nErrors: {res.json()['errors']}")
             return None
-        # Write raw file to folder structure
-        if not os.path.exists(f"./data/raw/{source}/{current_date}/"):
-            os.makedirs(f"./data/raw/{source}/{current_date}/")
         try:
             with open(f"./data/raw/{source}/{current_date}/{product['productId']}.json", "w") as f:
                 f.write(json.dumps(res.json()))
@@ -49,6 +50,8 @@ def load_model(source, model_entities, eftv_date, overwrite=True):
     if not os.path.exists(f"./data/model/{source}/"):
         os.makedirs(f"./data/model/{source}/")
     for entity_name, entity_df in tqdm(model_entities.items(), ascii=True, desc="Load Model Data"):
+        if len(entity_df) == 0:
+            continue
         output_file = f"./data/model/{source}/{entity_name}.csv"
         if entity_name[:2] != "h_" and os.path.exists(output_file) and overwrite:
             tmp_df = pd.read_csv(output_file)
