@@ -19,16 +19,16 @@ def load_raw(source, src_url, src_date):
         os.makedirs(f"./data/raw/{source}/{current_date}/")
 
     while url and url != "":
-        res = requests.get(url, headers=product_headers)
-        if res.status_code == 200:
-            try:
+        try:
+            res = requests.get(url, headers=product_headers)
+            if res.status_code == 200:
                 data.extend(res.json()["data"]["products"])
                 url = res.json()["links"].get("next", "")
-            except Exception:
-                print("\nERROR!")
-                print(f"Source: {source}\nData: {res.content}")
-                url = ""
-        else:
+            else:
+                raise Exception("Cannot access resource!")
+        except:
+            print("\nERROR!")
+            print(f"Source: {source}\nData: {res.content}")
             return None
     # Loop through products to get individual product data
     for product in tqdm(data, ascii=True, desc="Download Raw Data"):
